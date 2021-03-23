@@ -8,9 +8,11 @@ const {checkUsernameFree, checkUsernameExists, checkPasswordLength} = require('.
 router.post('/register', (req, res, next) => {
   res.json('hello there from register')
 })
+
 router.post('/login', (req, res, next) => {
   res.json('hello there from login')
 })
+
 router.get('/logout', (req, res, next) => {
   res.json('hello there from logout')
 })
