@@ -8,8 +8,12 @@ const Users = require('../users/users-model')
     "message": "You shall not pass!"
   }
 */
-function restricted() {
-
+function restricted(req, res, next) {
+  if(req.session && req.session.user){
+    next()
+  } else {
+    res.status(401).json({message:'you shall not pass!'})
+  }
 }
 
 /*
@@ -22,7 +26,6 @@ function restricted() {
 */
 async function checkUsernameFree(req, res, next) {
   try{
-
     let usernameToCheck = req.body.username
     const allUsers = await Users.find()
 
@@ -49,8 +52,22 @@ async function checkUsernameFree(req, res, next) {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
+async function checkUsernameExists(req, res, next) {
+  try{
+    let usernameToCheck = req.body.username
+    const allUsers = await Users.find()
 
+    const foundUser = allUsers.filter(user => {
+      return usernameToCheck === user.username
+    })
+    if(foundUser.length === 0){
+      res.status(422).json({message: "invalid credentials"})
+    } else {
+      next()
+    }
+  }catch(err){
+    next(err)
+  }
 }
 
 /*
@@ -61,12 +78,17 @@ function checkUsernameExists() {
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength(req, res, next) {
-  const passToCheck = req.body.password
-  if(passToCheck.length < 4){
-    res.status(422).json({message: "Password must be longer than 3 chars"})
-  } else {
-    next()
+async function checkPasswordLength(req, res, next) {
+  try{
+    const passToCheck = req.body.password
+    if(!passToCheck || passToCheck.length < 4){
+      
+      res.status(422).json({message: "Password must be longer than 3 chars"})
+    } else {
+      next() 
+    }
+  } catch(err){
+    next(err)
   }
 }
 
